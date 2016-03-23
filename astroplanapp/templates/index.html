@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<section>
+
+<div class="container">
+  <div class='row'>
+    <div class='col-md-6'>
+      <h1>Object visibility</h1>
+    <form id='astroplan-form' action="plot-airmass" method="get">
+
+        <div class="form-group">
+          <label for="location">Location</label>
+          <select name='location' class='form-control' id='location'>
+            {% for sitekey, sitename in sites|dictsort(false, 'value') %}
+              <option value="{{sitekey}}">{{sitename}}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!--
+        <div class="form-group form-inline">
+         or enter coordinates: <input class="form-control" id="observatory-coords" placeholder="12.3 45.6" style='width:18em;'>
+        </div>
+        -->
+
+        <div class="form-group">
+          <label for="targets">Targets</label>
+          <span id="helpBlock" class="help-block">Enter names or coordinates, one target per line.</span>
+          <textarea name='targets' class='form-control' id='targets' rows='3' placeholder='Vega
+270.0 -28.0
+18h00m00s -28d00m00s'></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+
+    </form>
+
+    </div>
+  </div>
+</div>
+
+</section>
+{% endblock %}
