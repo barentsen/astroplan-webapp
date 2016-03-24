@@ -67,23 +67,28 @@ def root():
 
 @app.route('/plot-airmass')
 def app_plot_airmass():
+    date = flask.request.args.get('date', default=None, type=str)
     location = flask.request.args.get('location', default=None, type=str)
     targets = flask.request.args.get('targets', default=None, type=str)
-    return flask.render_template('airmass.html', location=location, targets=targets)
+    return flask.render_template('airmass.html', date=date, location=location, targets=targets)
 
 
 @app.route('/airmass.png')
 def airmass_png():
     # Parse the arguments
+    date = flask.request.args.get('date', default=None, type=str)
     location = flask.request.args.get('location', default=None, type=str)
     targets = flask.request.args.get('targets', default=None, type=str)
     observer = astroplan.Observer.at_site(location)
     targets = _parse_targets(targets)
-    time = Time.now()
     # Create the airmass plot
     fig = pl.figure()
     ax = fig.add_subplot(111)
-    plot_airmass(targets[0], observer, time, ax=ax)
+    if date is None:
+        midnight = observer.midnight(Time.now())
+    else:
+        midnight = observer.midnight(Time(date))
+    plot_airmass(targets[0], observer, midnight, ax=ax)
     pl.tight_layout()
     # Stream the image to the browser using BytesIO
     img = BytesIO()
