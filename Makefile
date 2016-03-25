@@ -1,3 +1,6 @@
+devserver:
+	python start-devserver.py
+
 local:
 	heroku local
 

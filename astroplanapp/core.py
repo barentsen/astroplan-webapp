@@ -1,18 +1,19 @@
 """Implements the astroplan-based sky target visibility web tool using Flask.
 """
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('agg')
 from matplotlib import pyplot as pl
 
 import flask
 import json
 
+from astropy import units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astropy.utils.data import get_file_contents
 
 import astroplan
-from astroplan.plots import plot_airmass
+from astroplan.plots import plot_altitude
 
 try:
     from io import BytesIO  # Python 3
@@ -84,17 +85,18 @@ def airmass_png():
     if date is None:
         midnight = observer.midnight(Time.now())
     else:
-        midnight = observer.midnight(Time(date))
+        # +10*u.minute circumvents astroplan issue #155
+        midnight = observer.midnight(Time(date)) + 10 * u.minute
     targets = _parse_targets(targets)
     # Create the airmass plot
     fig = pl.figure()
     ax = fig.add_subplot(111)
     for target in targets:
-        plot_airmass(target, observer, midnight, ax=ax)
+        plot_altitude(target, observer, midnight, ax=ax)
     pl.tight_layout()
     # Stream the image to the browser using BytesIO
     img = BytesIO()
-    fig.savefig(img)
+    fig.savefig(img, transparent=True, format='png')
     img.seek(0)
     response = flask.send_file(img, mimetype="image/png")
     return response
